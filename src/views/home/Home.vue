@@ -1,8 +1,7 @@
 <template>
-  <div id="app">
-    <!-- <keep-alive exclude="RecDetail">
-      <router-view></router-view>
-    </keep-alive> -->
+  <div class="home">
+    <homeTop></homeTop>
+    <!-- <router-view class="main" @getTop="getTop" :bottomTop="bottomTop"> -->
     <div class="loading" v-show="Loading">
       <span></span>
       <span></span>
@@ -10,40 +9,45 @@
       <span></span>
       <span></span>
     </div>
-
-    <keep-alive>
-      <router-view v-if="this.$route.meta.keepAlive"></router-view>
-    </keep-alive>
     <div class="mainBox" v-show="!Loading">
-      <router-view v-if="!this.$route.meta.keepAlive"
-        @homeLoading="homeLoading"></router-view>
+      <keep-alive>
+        <router-view class="main" @showLoading="showLoading">
+        </router-view>
+      </keep-alive>
+      <homeBottom ref="Bottom"></homeBottom>
     </div>
-
   </div>
 </template>
 
 <script>
+import homeTop from "./children/HomeTop";
+import homeBottom from "./children/HomeBottom";
 export default {
-  name: "app",
+  name: "Home",
   data() {
     return {
       Loading: false,
     };
   },
+  components: {
+    homeTop,
+    homeBottom,
+  },
   methods: {
-    homeLoading(val) {
+    showLoading(val) {
       this.Loading = val;
     },
   },
+  // methods: {
+  //   getTop() {
+  //     this.bottomTop = this.$refs.Bottom.$el.offsetTop;
+  //   },
+  // },
 };
 </script>
 
 <style lang="less" scoped>
-#app {
-  margin: 0 auto;
-  background-color: #f9f9f9;
-  max-width: 640px;
-  position: relative;
+.home {
   .loading {
     width: 100%;
     background-color: #f4f4f4;
@@ -86,6 +90,12 @@ export default {
   }
   .loading span:nth-child(5) {
     -webkit-animation-delay: 0.65s;
+  }
+  .mainBox {
+    .main {
+      margin-top: 1.6rem;
+      padding-top: 0.2rem;
+    }
   }
 }
 </style>
