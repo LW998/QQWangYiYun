@@ -32,8 +32,8 @@
     <!-- 遮罩层 -->
     <div class="mark"></div>
     <div class="playInfo">
-      <h2 class="title">{{ playList[playIndex].songname }}</h2>
-      <p class="singer">{{ playList[playIndex].singer }}</p>
+      <h2 class="title">{{ songname }}</h2>
+      <p class="singer">{{ singer }}</p>
     </div>
     <div
       class="song-lyric"
@@ -94,7 +94,13 @@
 
 <script>
 import { getSongUrl, getLyric } from './playReq'
-import { handleLyric, handTrans, Num, debounce } from '../../common/utils'
+import {
+  handleLyric,
+  handTrans,
+  Num,
+  debounce,
+  offset,
+} from '../../common/utils'
 export default {
   name: 'player',
   data() {
@@ -147,8 +153,12 @@ export default {
       playIndex: 0,
       // 播放歌曲列表
       playList: [],
-      // 第一次进播放器
-      isFirst: true,
+      // 第一次进播放器,控制打开页面就播放
+      // isFirst: true,
+      // 歌词加载状态
+      lyricFlag: false,
+      // 上一首歌的index
+      prePlayIndex: 0,
       // 滑动防抖事件
       touchMoved: null,
     }
@@ -170,38 +180,24 @@ export default {
   watch: {
     playStatus: {
       handler(newVal, oldVal) {
-        // console.log(newVal);
         if (newVal) {
           this.playDom.play()
-          // this.audioTimer = setInterval(() => {
-          // this.curTime = this.formatTooltip(this.playDom.currentTime);
-          // // 计算进度条
-          // if (this.playDom.currentTime < this.duration) {
-          //   this.progressWidth =
-          //     (this.playDom.currentTime / this.duration) * 100 + "%";
-          // } else {
-          //   this.playStatus = false;
-          //   this.progressWidth = "100%";
-          // }
-          // if (this.curKey.length !== 1) {
-          //   //获取最新的index,移动歌词
-          //   this.curKey.forEach((item, index) => {
-          //     if (item / 10 === Math.floor(this.playDom.currentTime * 100)) {
-          //       // 经过防抖后的歌词移动处理函数
-          //       this.curIndex = index;
-          //       this.lyricMove(index);
-          //       return;
-          //     }
-          //   });
-          // }
-          // console.log(Math.floor(this.playDom.currentTime * 100));
-          // }, 5);
         } else {
-          // console.log(11111111);
           this.playDom.pause()
-          // clearInterval(this.audioTimer);
         }
       },
+    },
+  },
+  computed: {
+    songname() {
+      return this.lyricFlag
+        ? this.playList[this.playIndex].songname
+        : this.playList[this.prePlayIndex].songname
+    },
+    singer() {
+      return this.lyricFlag
+        ? this.playList[this.playIndex].singer
+        : this.playList[this.prePlayIndex].singer
     },
   },
   mounted() {
@@ -209,7 +205,6 @@ export default {
     this.lyricMove = debounce(this.moveLyric, 5)
     this.touchMoved = debounce(this.moveTouch, 3)
     this.getParams()
-
     window.onresize = this.getParams
   },
 
@@ -237,6 +232,7 @@ export default {
           this.$emit('homeLoading', false)
         })
         .then(() => {
+          this.lyricFlag = true
           this.wraH = this.$refs.wrapperRef.clientHeight
         })
     },
@@ -255,7 +251,7 @@ export default {
       this.conH = Math.floor((this.winH - 2.6 * this.winFont) * 1000) / 1000
       // console.log(Math.floor((this.winH - 2.6 * this.winFont) * 1000) / 1000);
       this.proW = this.$refs.progressRef.clientWidth
-      this.proL = this.$refs.progressRef.offsetLeft
+      this.proL = offset(this.$refs.progressRef).left
     },
     // 返回
     ToBack() {
@@ -291,7 +287,6 @@ export default {
         this.curH =
           this.$refs.lyricRef[index].offsetHeight +
           this.$refs.lyricRef[index].offsetTop
-        // console.log(this.curH, this.conH);
         if (this.curH >= this.conH * 0.5 && this.conH) {
           // let moveH = this.$refs.lyricRef[index].offsetHeight;
           // this.translateY -= moveH;
@@ -321,7 +316,7 @@ export default {
         this.playStatus = false
         this.progressWidth = '100%'
       }
-      if (this.curKey.length !== 1) {
+      if (this.curKey.length !== 1 && this.lyricFlag) {
         //获取最新的index,移动歌词
         this.curKey.forEach((item, index) => {
           if (
@@ -329,10 +324,12 @@ export default {
           ) {
             // 经过防抖后的歌词移动处理函数
             this.curIndex = index
-            this.lyricMove(index)
+            this.lyricMove(this.curIndex)
             return
           }
         })
+      } else {
+        this.curIndex = 0
       }
     },
     // audio加载完准备播放
@@ -352,10 +349,11 @@ export default {
     // audio加载完成，可以播放
     canPlaied() {
       this.CanPlayStatus = true
-      if (this.isFirst) {
-        this.isFirst = false
-        return
-      }
+      // if (this.isFirst) {
+      //   this.isFirst = false
+      //   return
+      // }
+      this.delay = 0.2
       this.playStatus = true
     },
     // 监听鼠标进入
@@ -404,8 +402,10 @@ export default {
         return
       }
       if (this.playIndex === 0) {
+        this.prePlayIndex = 0
         this.playIndex = this.playList.length - 1
       } else {
+        this.prePlayIndex = this.playIndex
         this.playIndex -= 1
       }
       this.getItemLyric()
@@ -420,10 +420,13 @@ export default {
         return
       }
       if (this.playIndex === this.playList.length - 1) {
+        this.prePlayIndex = this.playList.length - 1
         this.playIndex = 0
       } else {
+        this.prePlayIndex = this.playIndex
         this.playIndex += 1
       }
+
       this.getItemLyric()
       this.initialize()
       window.localStorage.setItem('playIndex', this.playIndex)
@@ -431,10 +434,12 @@ export default {
     // 切歌状态初始化
     initialize() {
       this.translateY = 0
+      this.delay = 0
       this.progressWidth = '0%'
       this.playStatus = false
       this.curIndex = 0
       this.curTime = '00:00'
+      this.lyricFlag = false
     },
   },
 }
@@ -448,7 +453,6 @@ export default {
   background: url('../../assets/img/1.png') no-repeat;
   background-size: 100% 100%;
   background-position: center center;
-  transform: translateY();
   overflow: auto;
   #music-data-canvas {
     z-index: -9999;

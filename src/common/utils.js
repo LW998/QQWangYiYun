@@ -34,6 +34,7 @@ export function handleLyric(str, obj) {
     return obj;
 }
 
+//翻译
 export function handTrans(str, obj) {
     const dom = document.createElement('div');
     dom.innerHTML = str;
@@ -67,7 +68,34 @@ export const Num = (a, b = 0, c = 0) => {
     return Number((a + (c * d)).toFixed(b));
 };
 
-
+export function offset(curEle) {
+    //获取当前元素的父参照物
+    let par = curEle.offsetParent,
+        //获取当前元素的左偏移
+        l = curEle.offsetLeft,
+        //获取当前元素的上偏移
+        t = curEle.offsetTop;
+    //判断当前元素是否存在，或者是否为body
+    //par.tagName !== 'BODY' 少做一次加body边框的操作
+    while (par && par.tagName !== 'BODY') {
+        //当前元素加上父参照物的边框宽度
+        if (!/MSIE 8\.0/.test(navigator.userAgent)) {
+            //IE8中偏移值自己就算了边框，不需要再加上边框的值
+            //navigator.userAgent获取当前浏览器的版本信息
+            l += par.clientLeft;
+            t += par.clientTop;
+        }
+        //当前元素加上父参照物的偏移
+        l += par.offsetLeft;
+        t += par.offsetTop;
+        //获取到父参照物的参照物
+        par = par.offsetParent;
+    }
+    return {
+        left: l,
+        top: t
+    }
+}
 
 String.prototype.formatTime = function formatTime(template) {
     typeof template === 'undefined' ? template = '{0}年{1}月{2}日 {3}时{4}分{5}秒' : null;
