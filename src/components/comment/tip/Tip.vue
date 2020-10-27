@@ -2,45 +2,51 @@
   <transition name="tip">
     <div class="tip" v-show="isShow">
       <p class="content" :style="{ backgroundColor: color }">
-        {{ message }}</p>
+        {{ message }}
+      </p>
     </div>
   </transition>
 </template>
 
 <script>
 export default {
-  name: "Tip",
+  name: 'Tip',
   data() {
     return {
-      message: "",
+      message: '',
       isShow: false,
-      color: "",
-    };
+      color: '',
+      timer: null,
+    }
   },
   methods: {
     show(message, type, duration = 1000) {
-      this.isShow = true;
-      this.message = message;
-      switch (type) {
-        case "info":
-          this.color = "#5cb3cc";
-          break;
-        case "error":
-          this.color = "#c21f30";
-          break;
-        case "success":
-          this.color = "#45b787";
-          break;
-        case "waring":
-          this.color = "#f0932b";
-      }
-      let timer = setTimeout(() => {
-        this.isShow = false;
-        clearTimeout(timer);
-      }, duration);
+      let context = this
+      return (function anonymous() {
+        context.isShow = true
+        context.message = message
+        switch (type) {
+          case 'info':
+            context.color = '#5cb3cc'
+            break
+          case 'error':
+            context.color = '#c21f30'
+            break
+          case 'success':
+            context.color = '#45b787'
+            break
+          case 'waring':
+            context.color = '#f0932b'
+        }
+        if (context.timer) clearTimeout(context.timer)
+        context.timer = setTimeout(() => {
+          context.isShow = false
+          context.timer = null
+        }, duration)
+      })()
     },
   },
-};
+}
 </script>
 
 <style lang="less" scoped>
@@ -74,11 +80,15 @@ export default {
 .tip-enter-active {
   .content {
     animation: enter 0.75s;
+    // opacity: 1;
+    // transition: opacity 1s;
   }
 }
 .tip-leave-active {
   .content {
     animation: leave 0.25s;
+    // opacity: 0;
+    // transition: opacity 1s;
   }
 }
 

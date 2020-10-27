@@ -12,17 +12,17 @@
           <img :src="recDetailList.head" alt="" class="nickImg" />
           {{ recDetailList.nick }}
         </p>
-        <p class="play">播放量: {{ recDetailList.visitnum | toFixed }}
-        </p>
+        <p class="play">播放量: {{ recDetailList.visitnum | toFixed }}</p>
       </div>
-      <a href="javascript:;" class="playBtn" @click="allPlay">
+      <a href="javascript:;" class="playBtn" @click="playAll">
         <svg class="icon_svg">
           <use xlink:href="#icon_arr">
             <svg id="icon_arr" viewBox="0 0 32 32">
               <title>圆角三角形</title>
-              <path d="M29.4,17.6c-0.3,0.4-0.6,0.8-1.1,1L6.7,31.6c-1.4,0.9-3.4,0.4-4.2-1C2.2,30,2,29.5,2,28.9V3.1C2,1.4,3.4,0,5.1,0
-	c0.6,0,1.2,0.2,1.7,0.4l21.6,12.9C29.8,14.2,30.3,16.1,29.4,17.6z">
-              </path>
+              <path
+                d="M29.4,17.6c-0.3,0.4-0.6,0.8-1.1,1L6.7,31.6c-1.4,0.9-3.4,0.4-4.2-1C2.2,30,2,29.5,2,28.9V3.1C2,1.4,3.4,0,5.1,0
+	c0.6,0,1.2,0.2,1.7,0.4l21.6,12.9C29.8,14.2,30.3,16.1,29.4,17.6z"
+              ></path>
             </svg>
           </use>
         </svg>
@@ -30,27 +30,37 @@
     </section>
     <section class="songListBox">
       <div class="songNum">
-        歌单<span class=""
-          class="totalNum">共{{ recDetailList.songnum }}首</span>
+        歌单<span class="totalNum">共{{ recDetailList.songnum }}首</span>
       </div>
       <ul class="songList">
-        <li class="songListItem"
-          v-for="(item, index) in recDetailList.list" :key="index">
-          <div class="itemBox"
-            @click="playSong(item.songmid,item.songname,item.singer)">
+        <li
+          class="songListItem"
+          v-for="(item, index) in recDetailList.list"
+          :key="index"
+        >
+          <div
+            class="itemBox"
+            @click="playSong(item.songmid, item.songname, item.singer)"
+          >
             <h3 class="itemName">
               <span class="name">{{ item.songname }}</span>
             </h3>
             <p class="singerName">
               <img
                 src="//y.gtimg.cn/mediastyle/mobile/app/share/img/icon_vip.png"
-                alt="" class="vip" v-show="item.vip" />
+                alt=""
+                class="vip"
+                v-show="item.vip"
+              />
               {{ item.singer }} · {{ item.album }}
             </p>
           </div>
-          <a href="javascript:;" class="down"
-            @click="downSong(item.songmid, item.songname, item.singer)"><i
-              class="iconfont icon-download"></i></a>
+          <a
+            href="javascript:;"
+            class="down"
+            @click="downSong(item.songmid, item.songname, item.singer)"
+            ><i class="iconfont icon-download"></i
+          ></a>
         </li>
       </ul>
     </section>
@@ -58,37 +68,37 @@
 </template>
 
 <script>
-import { getRecDetail, DownSong, getSongUrl, getSongUrls } from "./recReq";
-import { debounce } from "../../common/utils";
+import { getRecDetail, DownSong, getSongUrl, getSongUrls } from './recReq'
+import { debounce } from '../../common/utils'
 export default {
-  name: "recDetail",
+  name: 'recDetail',
   data() {
     return {
       id: null,
       recDetailList: [],
-      allPlay: null,
-    };
+      // allPlay: null,
+    }
   },
   created() {
-    this.$emit("homeLoading", true);
-    this.id = this.$route.params.id;
+    this.$emit('homeLoading', true)
+    this.id = this.$route.params.id
     getRecDetail({
       id: this.id,
     }).then((res) => {
       if (res.result === 100) {
-        this.recDetailList = res.data;
+        this.recDetailList = res.data
       }
-      this.$emit("homeLoading", false);
-    });
-    this.allPlay = debounce(this.playAll, 1000);
+      this.$emit('homeLoading', false)
+    })
+    // this.allPlay = debounce(this.playAll, 1000)
   },
   beforeRouteLeave(to, from, next) {
     // if (to.matched[0].path === "/player/:id/:name/:singer") {
     //   this.scrollTop =
     //     document.documentElement.scrollTop || document.body.scrollTop;
     // }
-    this.$emit("homeLoading", false);
-    next();
+    this.$emit('homeLoading', false)
+    next()
   },
   methods: {
     playSong(id, name, singer) {
@@ -97,7 +107,7 @@ export default {
       // this.$route.path !== `/player/${id}/${name}/${singer}`
       //   ? this.$router.push(`/player/${id}/${name}/${singer}`)
       //   : null;
-      let result = [];
+      let result = []
       getSongUrl({ id }).then((res) => {
         if (res.result === 100) {
           let obj = {
@@ -105,40 +115,40 @@ export default {
             songname: name,
             singer,
             playUrl: res.data[id],
-          };
-          result[0] = obj;
-          window.localStorage.setItem("playList", JSON.stringify(result));
-          this.$route.path !== "/player" ? this.$router.push("/player") : null;
+          }
+          result[0] = obj
+          window.localStorage.setItem('playList', JSON.stringify(result))
+          this.$route.path !== '/player' ? this.$router.push('/player') : null
         } else {
-          this.$tip.show(res.errMsg, "error");
+          this.$tip.show(res.errMsg, 'error')
         }
-      });
+      })
     },
     downSong(id, name, singer) {
-      let nameStr = `${name}-${singer}`;
-      DownSong({ id, type: "flac" }).then((res) => {
+      let nameStr = `${name}-${singer}`
+      DownSong({ id, type: 'flac' }).then((res) => {
         if (res.result === 100) {
-          this.$tip.show(`${nameStr}加入下载中`, "success");
+          this.$tip.show(`${nameStr}加入下载中`, 'success')
           // `/down/${res.data}`
           this.$saveFile(res.data, nameStr, null, (e) => {
-            if (e.type === "error") {
-              this.$tip.show(`下载${nameStr}出错`, "error");
+            if (e.type === 'error') {
+              this.$tip.show(`下载${nameStr}出错`, 'error')
             } else {
-              this.$tip.show(`下载成功${nameStr}`, "success");
+              this.$tip.show(`下载成功${nameStr}`, 'success')
             }
-          });
+          })
         } else {
-          this.$tip.show(`获取${nameStr}下载链接出错`, "error");
+          this.$tip.show(`获取${nameStr}下载链接出错`, 'error')
         }
-      });
+      })
     },
     playAll() {
       if (this.recDetailList.songnum > 200) {
-        this.$tip.show(`歌单太大，请选择顺眼的播放`, "info");
-        return;
+        this.$tip.show(`歌单太大，请选择顺眼的播放`, 'info')
+        return
       }
-      let arr = this.recDetailList.list.map((item) => item.songmid).join(","),
-        result = [];
+      let arr = this.recDetailList.list.map((item) => item.songmid).join(','),
+        result = []
       // let canplay = false;
       // if (!canplay) {
       //   this.$tip.show(`正在生成歌单，请稍后`, "info");
@@ -148,25 +158,25 @@ export default {
           this.recDetailList.list.forEach((item, index) => {
             for (let i in res.data) {
               if (i === item.songmid) {
-                item.playUrl = res.data[i];
-                result.push(item);
-                return;
+                item.playUrl = res.data[i]
+                result.push(item)
+                return
               }
             }
-          });
-          window.localStorage.setItem("playList", JSON.stringify(result));
+          })
+          window.localStorage.setItem('playList', JSON.stringify(result))
           // canplay = true;
-          this.$route.path !== "/player" ? this.$router.push("/player") : null;
+          this.$route.path !== '/player' ? this.$router.push('/player') : null
         }
-      });
+      })
     },
   },
   filters: {
     toFixed(value) {
-      return value < 10000 ? `${value}` : `${(value / 10000).toFixed(1)}万`;
+      return value < 10000 ? `${value}` : `${(value / 10000).toFixed(1)}万`
     },
   },
-};
+}
 </script>
 
 <style lang="less" scoped>
