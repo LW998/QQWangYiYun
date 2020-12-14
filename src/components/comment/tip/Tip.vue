@@ -35,7 +35,7 @@ export default {
           case 'success':
             context.color = '#45b787'
             break
-          case 'waring':
+          case 'warning':
             context.color = '#f0932b'
         }
         if (context.timer) clearTimeout(context.timer)

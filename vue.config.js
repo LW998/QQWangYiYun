@@ -14,7 +14,7 @@ module.exports = {
     //proxy跨域代理
     proxy: {
       '/api': {
-        target: 'http://106.60.9.119:3300/',
+        target: 'http://127.0.0.1:3000/',
         changeOrigin: true,
         pathRewrite: {
           '^/api': '',

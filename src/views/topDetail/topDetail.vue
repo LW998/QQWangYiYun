@@ -167,7 +167,7 @@ export default {
             playUrl: res.data[id],
           }
           result[0] = obj
-          window.localStorage.setItem('playList', JSON.stringify(result))
+          window.sessionStorage.setItem('playList', JSON.stringify(result))
           this.$route.path !== '/player' ? this.$router.push('/player') : null
         } else {
           this.$tip.show(res.errMsg, 'error')
@@ -189,7 +189,7 @@ export default {
               }
             }
           })
-          window.localStorage.setItem('playList', JSON.stringify(result))
+          window.sessionStorage.setItem('playList', JSON.stringify(result))
           this.$route.path !== '/player' ? this.$router.push('/player') : null
         }
       })

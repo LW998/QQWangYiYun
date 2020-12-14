@@ -4,11 +4,11 @@ import {
 } from "../../../../network/request"
 
 // 获取搜索热词
-export const getHot = () => get('/search/hot');
+export const getHot = () => get('/home/hot');
 // 搜索歌曲内容
-export const getSearch = (p) => get('/search', p);
+export const getSearch = (p) => get('/home/search', p);
 // 获取首页轮播图
-export const getBanner = () => get('/recommend/banner')
+export const getBanner = () => get('/home/banner')
 // 获取歌单
 export const getAlbum = (p) => get('/songlist/list', p)
 // 播放链接请求

@@ -69,13 +69,15 @@
 
 <script>
 import { getRecDetail, DownSong, getSongUrl, getSongUrls } from './recReq'
-import { debounce } from '../../common/utils'
+import { FirstDebounce } from '../../common/utils'
 export default {
   name: 'recDetail',
   data() {
     return {
       id: null,
       recDetailList: [],
+      detailList: [],
+      reqList: [],
       // allPlay: null,
     }
   },
@@ -87,10 +89,11 @@ export default {
     }).then((res) => {
       if (res.result === 100) {
         this.recDetailList = res.data
+        this.detailList = JSON.parse(JSON.stringify(this.recDetailList.list))
       }
       this.$emit('homeLoading', false)
     })
-    // this.allPlay = debounce(this.playAll, 1000)
+    // this.allPlay = FirstDebounce(this.playAll, 1000)
   },
   beforeRouteLeave(to, from, next) {
     // if (to.matched[0].path === "/player/:id/:name/:singer") {
@@ -117,7 +120,7 @@ export default {
             playUrl: res.data[id],
           }
           result[0] = obj
-          window.localStorage.setItem('playList', JSON.stringify(result))
+          window.sessionStorage.setItem('playList', JSON.stringify(result))
           this.$route.path !== '/player' ? this.$router.push('/player') : null
         } else {
           this.$tip.show(res.errMsg, 'error')
@@ -142,20 +145,23 @@ export default {
         }
       })
     },
+    // 播放全部
     playAll() {
-      if (this.recDetailList.songnum > 200) {
-        this.$tip.show(`歌单太大，请选择顺眼的播放`, 'info')
-        return
+      for (let i = 0; i < this.detailList.length; i++) {
+        this.reqList.push(this.detailList.splice(i, 10))
+        i--
       }
-      let arr = this.recDetailList.list.map((item) => item.songmid).join(','),
+      this.getSong()
+    },
+    // 获取歌曲链接
+    getSong() {
+      let tempList = this.reqList.shift()
+      let urlList = tempList.map((item) => item.songmid),
+        arr = urlList.join(','),
         result = []
-      // let canplay = false;
-      // if (!canplay) {
-      //   this.$tip.show(`正在生成歌单，请稍后`, "info");
-      // }
       getSongUrl({ id: arr }).then((res) => {
         if (res.result === 100) {
-          this.recDetailList.list.forEach((item, index) => {
+          tempList.forEach((item, index) => {
             for (let i in res.data) {
               if (i === item.songmid) {
                 item.playUrl = res.data[i]
@@ -164,9 +170,15 @@ export default {
               }
             }
           })
-          window.localStorage.setItem('playList', JSON.stringify(result))
-          // canplay = true;
+          window.sessionStorage.setItem('reqList', JSON.stringify(this.reqList))
+          window.sessionStorage.setItem('playList', JSON.stringify(result))
           this.$route.path !== '/player' ? this.$router.push('/player') : null
+        } else {
+          if (this.reqList.length !== 0) {
+            this.getSong()
+          } else {
+            this.$tip.show(`获取播放链接出错`, 'error')
+          }
         }
       })
     },

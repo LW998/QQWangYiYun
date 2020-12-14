@@ -15,27 +15,28 @@
       <router-view v-if="this.$route.meta.keepAlive"></router-view>
     </keep-alive>
     <div class="mainBox" v-show="!Loading">
-      <router-view v-if="!this.$route.meta.keepAlive"
-        @homeLoading="homeLoading"></router-view>
+      <router-view
+        v-if="!this.$route.meta.keepAlive"
+        @homeLoading="homeLoading"
+      ></router-view>
     </div>
-
   </div>
 </template>
 
 <script>
 export default {
-  name: "app",
+  name: 'app',
   data() {
     return {
       Loading: false,
-    };
+    }
   },
   methods: {
     homeLoading(val) {
-      this.Loading = val;
+      this.Loading = val
     },
   },
-};
+}
 </script>
 
 <style lang="less" scoped>

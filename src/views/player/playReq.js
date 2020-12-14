@@ -7,4 +7,4 @@ import {
 export const getSongUrl = (p) => get('/song/urls', p)
 
 // 歌词请求
-export const getLyric = (p) => get('/lyric', p)
+export const getLyric = (p) => get('/song/lyric', p)

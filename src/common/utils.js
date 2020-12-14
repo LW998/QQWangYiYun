@@ -1,3 +1,4 @@
+import Vue from 'vue'
 //防抖
 export function debounce(func, wait) {
     let timer = null,
@@ -12,6 +13,32 @@ export function debounce(func, wait) {
         return result;
     };
 };
+
+// 防抖立即执行版
+export function FirstDebounce(func, wait) {
+    let timer = null,
+        firstClick = false;
+    return function anonymous(...args) {
+        let context = this;
+        if (timer && !firstClick) {
+            // 频繁点击时做的事
+            // Vue.prototype.$tip.show(`请勿频繁点击`, 'info')
+            console.log(1111111);
+        }
+        if (timer) clearTimeout(timer);
+        firstClick = true
+        let callNow = !timer;
+        timer = setTimeout(() => {
+            // 等待wait时间后放行请求
+            timer = null
+        }, wait)
+        if (callNow) {
+            firstClick = false
+            // 首次进入点击执行
+            return func.call(context, ...args);
+        }
+    }
+}
 
 
 //歌词

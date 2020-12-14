@@ -3,8 +3,8 @@ import {
     post
 } from "../../network/request"
 
-// 获取搜索热词
-export const getRecDetail = (p) => get('/songlist', p);
+// 获取推荐歌单详情
+export const getRecDetail = (p) => get('/songlist/detail', p);
 //下载歌曲
 export const DownSong = (p) => get('/song/url', p)
 // 播放链接请求

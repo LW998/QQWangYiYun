@@ -2,13 +2,17 @@
   <section class="recommendBox">
     <h2 class="title">热门歌单</h2>
     <section class="recommendList">
-      <div class="recommendItem" v-for="(item, index) in recomList"
-        :key="index" @click="toDetail(item.id)">
+      <div
+        class="recommendItem"
+        v-for="(item, index) in recomList"
+        :key="index"
+        @click="toDetail(item.id)"
+      >
         <img :src="item.imgurl" alt="" class="recommendImg" />
         <div class="listenBox">
           <p class="num">
-            <i
-              class="iconfont icon-shiting"></i><span>{{ item.listennum }}</span>
+            <i class="iconfont icon-shiting"></i
+            ><span>{{ item.listennum }}</span>
           </p>
           <p class="play"><i class="iconfont icon-bofang1"></i></p>
         </div>
@@ -23,17 +27,17 @@
 </template>
 
 <script>
-import { debounce } from "../../../../../common/utils";
-import { getAlbum } from "../RecommendReq";
+import { debounce } from '../../../../../common/utils'
+import { getAlbum } from '../RecommendReq'
 export default {
-  name: "Album",
+  name: 'Album',
   data() {
     return {
       pageNo: 1,
       recomList: [],
       debounceGet: null,
       showBack: false,
-    };
+    }
   },
   props: {
     activeType: {
@@ -41,20 +45,20 @@ export default {
     },
   },
   created() {
-    this.$emit("showLoading", true);
-    this.getRec();
+    this.$emit('showLoading', true)
+    this.getRec()
   },
   mounted() {
-    this.debounceGet = debounce(this.getRec, 50);
+    this.debounceGet = debounce(this.getRec, 50)
   },
   watch: {
     activeType: {
       // 根据是否显示搜索框，添加scroll事件监听
       handler(newVal, oldVal) {
         if (!newVal) {
-          window.onscroll = debounce(this.handlerScroll, 50);
+          window.onscroll = debounce(this.handlerScroll, 50)
         } else {
-          window.onscroll = null;
+          window.onscroll = null
         }
       },
       immediate: true,
@@ -68,19 +72,19 @@ export default {
       }).then((res) => {
         if (res.result === 100) {
           res.data.list.forEach((item) => {
-            let obj = {};
-            obj.id = item.dissid;
-            obj.dissname = item.dissname;
-            obj.imgurl = item.imgurl;
+            let obj = {}
+            obj.id = item.dissid
+            obj.dissname = item.dissname
+            obj.imgurl = item.imgurl
             obj.listennum =
               item.listennum < 10000
                 ? `${item.listennum}`
-                : `${(item.listennum / 10000).toFixed(1)}万`;
-            this.recomList.push(obj);
-          });
+                : `${(item.listennum / 10000).toFixed(1)}万`
+            this.recomList.push(obj)
+          })
         }
-        this.$emit("showLoading", false);
-      });
+        this.$emit('showLoading', false)
+      })
     },
     // 监听页面滚动事件
     handlerScroll() {
@@ -92,27 +96,26 @@ export default {
           document.documentElement.clientHeight || document.body.clientHeight,
         // 已经滚去的高度
         scrollH =
-          document.documentElement.scrollHeight || document.body.scrollHeight;
-
+          document.documentElement.scrollHeight || document.body.scrollHeight
       //是否滚动到底部的判断
-      if (scrollT + winH >= scrollH - 50) {
-        this.pageNo += 1;
-        this.debounceGet();
+      if (scrollT + winH >= scrollH - 50 && this.$route.path === '/recommend') {
+        this.pageNo += 1
+        this.debounceGet()
       }
       if (scrollT > winH * 3.5) {
-        this.showBack = true;
+        this.showBack = true
       } else if (scrollT === 0 || scrollT < winH * 3.5) {
-        this.showBack = false;
+        this.showBack = false
       }
     },
     // 点击歌单跳详情
     toDetail(id) {
-      this.$route.path !== "/recdetail/" + id
-        ? this.$router.push("/recdetail/" + id)
-        : null;
+      this.$route.path !== '/recdetail/' + id
+        ? this.$router.push('/recdetail/' + id)
+        : null
     },
   },
-};
+}
 </script>
 
 <style lang="less" scoped>

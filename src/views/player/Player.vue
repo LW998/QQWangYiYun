@@ -161,19 +161,26 @@ export default {
       prePlayIndex: 0,
       // 滑动防抖事件
       touchMoved: null,
+      // 大歌单歌曲id列表
+      reqList: [],
     }
   },
   created() {
-    if (window.localStorage.getItem('playIndex')) {
-      this.playIndex = Number(window.localStorage.getItem('playIndex'))
+    if (window.sessionStorage.getItem('playIndex')) {
+      this.playIndex = Number(window.sessionStorage.getItem('playIndex'))
     }
-    // console.log(window.localStorage.getItem("playIndex"));
+    if (window.sessionStorage.getItem('reqList')) {
+      this.reqList = JSON.parse(window.sessionStorage.getItem('reqList'))
+    }
+    // console.log(window.sessionStorage.getItem("playIndex"));
     this.$emit('homeLoading', true)
-    this.playList = JSON.parse(window.localStorage.getItem('playList'))
+    this.playList = JSON.parse(window.sessionStorage.getItem('playList'))
     this.getItemLyric()
   },
   beforeRouteLeave(to, from, next) {
-    window.localStorage.removeItem('playIndex')
+    window.sessionStorage.removeItem('playIndex')
+    window.sessionStorage.removeItem('reqList')
+    window.sessionStorage.removeItem('playList')
     this.$emit('homeLoading', false)
     next()
   },
@@ -211,6 +218,7 @@ export default {
   methods: {
     getItemLyric() {
       // 获取歌词并且格式化
+      // console.log(this.playIndex)
       getLyric({ songmid: this.playList[this.playIndex].songmid })
         .then((res) => {
           if (res.result === 100) {
@@ -396,40 +404,68 @@ export default {
     },
     // 切换上一首
     prevSong() {
-      if (this.playList.length === 1) {
+      // 单曲播放时
+      if (this.playList.length === 1 && this.reqList.length === 0) {
         this.playDom.load()
         this.initialize()
         return
       }
-      if (this.playIndex === 0) {
+      // else if (this.playList.length === 1 && this.reqList.length !== 0) {
+      //   this.reqNewList('prev')
+      //   console.log('上一')
+      // }
+      // 多曲播放
+      if (this.playIndex === 0 && this.reqList.length === 0) {
         this.prePlayIndex = 0
         this.playIndex = this.playList.length - 1
+        this.getItemLyric()
+        window.sessionStorage.setItem('playIndex', this.playIndex)
+      } else if (this.playIndex === 0 && this.reqList.length !== 0) {
+        this.reqNewList('prev')
+        // console.log('上二')
       } else {
         this.prePlayIndex = this.playIndex
         this.playIndex -= 1
+        this.getItemLyric()
+        window.sessionStorage.setItem('playIndex', this.playIndex)
       }
-      this.getItemLyric()
       this.initialize()
-      window.localStorage.setItem('playIndex', this.playIndex)
     },
     // 切换下一首
     nextSong() {
-      if (this.playList.length === 1) {
+      if (this.playList.length === 1 && this.reqList.length === 0) {
         this.playDom.load()
         this.initialize()
         return
       }
-      if (this.playIndex === this.playList.length - 1) {
+      // else if (this.playList.length === 1 && this.reqList.length !== 0) {
+      //   this.reqNewList('next')
+      //   console.log('下一')
+      // }
+      if (
+        this.playIndex === this.playList.length - 1 &&
+        this.reqList.length === 0
+      ) {
+        // 到最后的索引并且没有待请求的歌单了
         this.prePlayIndex = this.playList.length - 1
         this.playIndex = 0
+        this.getItemLyric()
+        window.sessionStorage.setItem('playIndex', this.playIndex)
+      } else if (
+        this.playIndex === this.playList.length - 1 &&
+        this.reqList.length !== 0
+      ) {
+        // 到最后的索引但是还有待请求的歌单了
+        this.prePlayIndex = this.playIndex
+        this.reqNewList('next')
+        // console.log('下二')
       } else {
         this.prePlayIndex = this.playIndex
         this.playIndex += 1
+        this.getItemLyric()
+        window.sessionStorage.setItem('playIndex', this.playIndex)
       }
-
-      this.getItemLyric()
       this.initialize()
-      window.localStorage.setItem('playIndex', this.playIndex)
     },
     // 切歌状态初始化
     initialize() {
@@ -439,7 +475,58 @@ export default {
       this.playStatus = false
       this.curIndex = 0
       this.curTime = '00:00'
-      this.lyricFlag = false
+      if (this.playList.length !== 1) {
+        this.lyricFlag = false
+      }
+    },
+    //大歌单请求歌曲列表
+    reqNewList(action) {
+      let urlList =
+          action === 'next' ? this.reqList.shift() : this.reqList.pop(),
+        detail = JSON.parse(JSON.stringify(urlList))
+      window.sessionStorage.setItem('reqList', JSON.stringify(this.reqList))
+      getSongUrl({
+        id: urlList.map((item) => item.songmid).join(','),
+      }).then((res) => {
+        if (res.result === 100) {
+          if (action === 'next') {
+            detail.forEach((item, index) => {
+              for (let i in res.data) {
+                if (i === item.songmid) {
+                  item.playUrl = res.data[i]
+                  this.playList.push(item)
+                  return
+                }
+              }
+            })
+            this.playIndex += 1
+          } else {
+            let detailResult = []
+            detail.forEach((item, index) => {
+              for (let i in res.data) {
+                if (i === item.songmid) {
+                  item.playUrl = res.data[i]
+                  detailResult.push(item)
+                  return
+                }
+              }
+            })
+            this.playList.unshift(...detailResult)
+            this.prePlayIndex = detailResult.length
+            this.playIndex = detailResult.length - 1
+          }
+          this.getItemLyric()
+          window.sessionStorage.setItem('playIndex', this.playIndex)
+          window.sessionStorage.setItem(
+            'playList',
+            JSON.stringify(this.playList)
+          )
+        } else {
+          if (this.reqList.length !== 0) {
+            this.reqNewList(action)
+          }
+        }
+      })
     },
   },
 }
