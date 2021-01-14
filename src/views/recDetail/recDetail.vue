@@ -76,6 +76,7 @@ export default {
     return {
       id: null,
       recDetailList: [],
+      
       detailList: [],
       reqList: [],
       // allPlay: null,
@@ -132,7 +133,6 @@ export default {
       DownSong({ id, type: 'flac' }).then((res) => {
         if (res.result === 100) {
           this.$tip.show(`${nameStr}加入下载中`, 'success')
-          // `/down/${res.data}`
           this.$saveFile(res.data, nameStr, null, (e) => {
             if (e.type === 'error') {
               this.$tip.show(`下载${nameStr}出错`, 'error')

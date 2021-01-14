@@ -2,17 +2,16 @@
   <section class="recommendBox">
     <h2 class="title">热门歌单</h2>
     <section class="recommendList">
-      <div
-        class="recommendItem"
-        v-for="(item, index) in recomList"
-        :key="index"
-        @click="toDetail(item.id)"
-      >
-        <img :src="item.imgurl" alt="" class="recommendImg" />
+      <div class="recommendItem"
+           v-for="(item, index) in recomList"
+           :key="index"
+           @click="toDetail(item.id)">
+        <img :src="item.imgurl"
+             alt=""
+             class="recommendImg" />
         <div class="listenBox">
           <p class="num">
-            <i class="iconfont icon-shiting"></i
-            ><span>{{ item.listennum }}</span>
+            <i class="iconfont icon-shiting"></i><span>{{ item.listennum }}</span>
           </p>
           <p class="play"><i class="iconfont icon-bofang1"></i></p>
         </div>
@@ -22,21 +21,31 @@
         </div>
       </div>
     </section>
-    <backTop class="backTopBtn" v-show="showBack"></backTop>
+    <loading :showLoad='showLoad'></loading>
+    <backTop class="backTopBtn"
+             v-show="showBack"></backTop>
   </section>
 </template>
 
 <script>
 import { debounce } from '../../../../../common/utils'
 import { getAlbum } from '../RecommendReq'
+
+import loading from '../../../../../components/comment/loading'
 export default {
   name: 'Album',
-  data() {
+  data () {
     return {
+      // 当前页码
       pageNo: 1,
+      // 歌单列表
       recomList: [],
+      // 防抖的获取列表
       debounceGet: null,
+      //是否显示返回
       showBack: false,
+      // 是否显示加载更多
+      showLoad: false
     }
   },
   props: {
@@ -44,17 +53,17 @@ export default {
       type: Boolean,
     },
   },
-  created() {
+  created () {
     this.$emit('showLoading', true)
     this.getRec()
   },
-  mounted() {
+  mounted () {
     this.debounceGet = debounce(this.getRec, 50)
   },
   watch: {
     activeType: {
       // 根据是否显示搜索框，添加scroll事件监听
-      handler(newVal, oldVal) {
+      handler (newVal, oldVal) {
         if (!newVal) {
           window.onscroll = debounce(this.handlerScroll, 50)
         } else {
@@ -64,9 +73,12 @@ export default {
       immediate: true,
     },
   },
+  components: {
+    loading
+  },
   methods: {
     //   获取数据
-    getRec() {
+    getRec () {
       getAlbum({
         pageNo: this.pageNo,
       }).then((res) => {
@@ -82,15 +94,16 @@ export default {
                 : `${(item.listennum / 10000).toFixed(1)}万`
             this.recomList.push(obj)
           })
+          this.showLoad = false
         }
         this.$emit('showLoading', false)
       })
     },
     // 监听页面滚动事件
-    handlerScroll() {
+    handlerScroll () {
       // 获取滚动高度
       let scrollT =
-          document.documentElement.scrollTop || document.body.scrollTop,
+        document.documentElement.scrollTop || document.body.scrollTop,
         // 窗口高度
         winH =
           document.documentElement.clientHeight || document.body.clientHeight,
@@ -98,7 +111,8 @@ export default {
         scrollH =
           document.documentElement.scrollHeight || document.body.scrollHeight
       //是否滚动到底部的判断
-      if (scrollT + winH >= scrollH - 50 && this.$route.path === '/recommend') {
+      if (scrollT + winH >= scrollH - 50 && this.$route.path === '/recommend' && !this.showLoad) {
+        this.showLoad = true
         this.pageNo += 1
         this.debounceGet()
       }
@@ -109,7 +123,7 @@ export default {
       }
     },
     // 点击歌单跳详情
-    toDetail(id) {
+    toDetail (id) {
       this.$route.path !== '/recdetail/' + id
         ? this.$router.push('/recdetail/' + id)
         : null

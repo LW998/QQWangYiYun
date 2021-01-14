@@ -1,59 +1,56 @@
 <template>
   <main class="searchBody">
-    <section class="search" :class="{ active: SearchActive }">
+    <section class="search"
+             :class="{ active: SearchActive }">
       <div class="searchBox">
         <svg class="searchIcon">
-          <use
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            xlink:href="#icon_search"
-          >
-            <svg id="icon_search" viewBox="0 0 32 32">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink"
+               xlink:href="#icon_search">
+            <svg id="icon_search"
+                 viewBox="0 0 32 32">
               <title>搜索</title>
-              <path
-                d="M28.049 29.5l-4.753-4.753c-4.73 3.994-11.813 3.762-16.27-0.695-4.701-4.701-4.701-12.324 0-17.026s12.324-4.701 17.026 0c4.457 4.457 4.689 11.54 0.695 16.27l4.753 4.753-1.451 1.451zM22.571 8.429c-3.905-3.905-10.237-3.905-14.142 0s-3.905 10.237 0 14.142c3.905 3.905 10.237 3.905 14.142 0s3.905-10.237 0-14.142z"
-              ></path>
+              <path d="M28.049 29.5l-4.753-4.753c-4.73 3.994-11.813 3.762-16.27-0.695-4.701-4.701-4.701-12.324 0-17.026s12.324-4.701 17.026 0c4.457 4.457 4.689 11.54 0.695 16.27l4.753 4.753-1.451 1.451zM22.571 8.429c-3.905-3.905-10.237-3.905-14.142 0s-3.905 10.237 0 14.142c3.905 3.905 10.237 3.905 14.142 0s3.905-10.237 0-14.142z"></path>
             </svg>
           </use>
         </svg>
-        <input
-          type="search"
-          v-model="SearchText"
-          class="searchInp"
-          placeholder="搜索"
-          @click="searchClick"
-          @keyup.enter="toSearch"
-        />
-        <i class="clear" v-show="clearShow" @click="clearText">×</i>
+        <input type="search"
+               v-model="SearchText"
+               class="searchInp"
+               placeholder="搜索"
+               @click="searchClick"
+               @keyup.enter="toSearch" />
+        <i class="clear"
+           v-show="clearShow"
+           @click="clearText">×</i>
       </div>
-      <span class="cancel" v-show="SearchActive" @click="cancelSearch"
-        >取消</span
-      >
+      <span class="cancel"
+            v-show="SearchActive"
+            @click="cancelSearch">取消</span>
     </section>
 
-    <section class="SearchCont" v-show="SearchActive">
+    <section class="SearchCont"
+             v-show="SearchActive">
       <div v-show="resultList.length === 0">
-        <section class="SearchText" v-show="historyList.length !== 0">
+        <section class="SearchText"
+                 v-show="historyList.length !== 0">
           <h2 class="title">
             历史搜索
           </h2>
           <div class="hotList">
-            <a
-              href="javascript:;"
-              v-for="(item, index) in historyList"
-              :key="index"
-              class="hotItem"
-              @click="labelClick(item)"
-              >{{ item }}</a
-            >
+            <a href="javascript:;"
+               v-for="(item, index) in historyList"
+               :key="index"
+               class="hotItem"
+               @click="labelClick(item)">{{ item }}</a>
           </div>
-          <div class="historydel" @click="clearHistory">
+          <div class="historydel"
+               @click="clearHistory">
             <svg class="delIcon c_txt2">
               <use xlink:href="#icon_delete">
-                <svg id="icon_delete" viewBox="0 0 32 32">
+                <svg id="icon_delete"
+                     viewBox="0 0 32 32">
                   <title>删除</title>
-                  <path
-                    d="M25 10.5h2v13.996c0 2.753-2.141 5.004-4.809 5.004h-12.382c-2.667 0-4.809-2.253-4.809-5.004v-13.996h2v13.996c0 1.669 1.27 3.004 2.809 3.004h12.382c1.54 0 2.809-1.334 2.809-3.004v-13.996zM3 8.5v-2h26v2h-26zM18 10.5h2v14h-2v-14zM12 10.5h2v14h-2v-14zM12 5.785v0.715h-2v-0.715c0-1.807 1.436-3.285 3.219-3.285h5.561c1.784 0 3.219 1.478 3.219 3.285v0.715h-2v-0.715c0-0.715-0.553-1.285-1.219-1.285h-5.561c-0.666 0-1.219 0.57-1.219 1.285z"
-                  ></path>
+                  <path d="M25 10.5h2v13.996c0 2.753-2.141 5.004-4.809 5.004h-12.382c-2.667 0-4.809-2.253-4.809-5.004v-13.996h2v13.996c0 1.669 1.27 3.004 2.809 3.004h12.382c1.54 0 2.809-1.334 2.809-3.004v-13.996zM3 8.5v-2h26v2h-26zM18 10.5h2v14h-2v-14zM12 10.5h2v14h-2v-14zM12 5.785v0.715h-2v-0.715c0-1.807 1.436-3.285 3.219-3.285h5.561c1.784 0 3.219 1.478 3.219 3.285v0.715h-2v-0.715c0-0.715-0.553-1.285-1.219-1.285h-5.561c-0.666 0-1.219 0.57-1.219 1.285z"></path>
                 </svg>
               </use>
             </svg>
@@ -64,49 +61,48 @@
             热门搜索
           </h2>
           <div class="hotList">
-            <a
-              href="javascript:;"
-              v-for="(item, index) in hotList"
-              :key="index"
-              class="hotItem"
-              @click="labelClick(item.k)"
-              >{{ item.k }}</a
-            >
+            <a href="javascript:;"
+               v-for="(item, index) in hotList"
+               :key="index"
+               class="hotItem"
+               @click="labelClick(item.k)">{{ item.k }}</a>
           </div>
         </section>
       </div>
       <!-- 搜索返回结果 -->
-      <section class="SearchResult" v-show="resultList.length !== 0">
+      <section class="SearchResult"
+               v-show="resultList.length !== 0">
         <ul class="resList">
-          <li class="ListItem" v-for="(item, index) in resultList" :key="index">
-            <div
-              class="listItemBox"
-              @click="playClick(item.songmid, item.songname, item.singer)"
-            >
+          <li class="ListItem"
+              v-for="(item, index) in resultList"
+              :key="index">
+            <div class="listItemBox"
+                 @click="playClick(item.songmid, item.songname, item.singer)">
               <h3 class="itemSong">{{ item.songname }}</h3>
               <p>
-                <span
-                  class="itemSinger"
-                  v-for="(singer, i) in item.singer"
-                  :key="i"
-                  >{{ singer }}</span
-                >
+                <span class="itemSinger"
+                      v-for="(singer, i) in item.singer"
+                      :key="i">{{ singer }}</span>
               </p>
             </div>
           </li>
         </ul>
+        <loading :showLoad='showLoad'
+                 :more='more'></loading>
       </section>
     </section>
-    <backTop class="backTopBtn" v-show="showBack"></backTop>
+    <backTop class="backTopBtn"
+             v-show="showBack"></backTop>
   </main>
 </template>
 
 <script>
 import { debounce } from '../../../../../common/utils'
 import { getHot, getSearch, SearchRes, getSongUrl } from '../RecommendReq'
+import loading from '../../../../../components/comment/loading'
 export default {
   name: 'Search',
-  data() {
+  data () {
     return {
       SearchActive: false,
       SearchText: '',
@@ -118,6 +114,8 @@ export default {
       // 是否还有更多
       more: true,
       getList: null,
+      //是否显示加载更多
+      showLoad: false
     }
   },
   // props: {
@@ -125,17 +123,30 @@ export default {
   //     type: Number,
   //   },
   // },
-  mounted() {
+  created () {
+    if (window.localStorage.getItem('history')) {
+      this.historyList = JSON.parse(window.localStorage.getItem('history'))
+    }
+    getHot().then((res) => {
+      if (res.result === 100) {
+        this.hotList = res.data
+      }
+    })
+  },
+  components: {
+    loading
+  },
+  mounted () {
     this.getList = debounce(this.getData, 17)
   },
   methods: {
     // 点击搜索框
-    searchClick() {
+    searchClick () {
       this.SearchActive = true
       this.$emit('changeActive', true)
     },
     // 取消按钮
-    cancelSearch() {
+    cancelSearch () {
       this.SearchActive = false
       this.$emit('changeActive', false)
       this.SearchText = ''
@@ -144,31 +155,32 @@ export default {
       window.onscroll = null
     },
     //供外界调用关闭搜索框的方法
-    pageLeave() {
+    pageLeave () {
       this.SearchActive = false
       this.SearchText = ''
       this.resultList = []
       this.pageNo = 1
     },
     // 点击X号
-    clearText() {
+    clearText () {
       this.SearchText = ''
       this.pageNo = 1
       this.more = true
+      this.showLoad = false
       this.resultList = []
       window.onscroll = null
     },
     // 回车搜索
-    toSearch() {
+    toSearch () {
       this.SearchData()
     },
     // 点击标签搜索
-    labelClick(name) {
+    labelClick (name) {
       this.SearchText = name
       this.SearchData()
     },
     // 搜索的方法
-    SearchData() {
+    SearchData () {
       //判断是否添加搜索历史
       if (!this.historyList.some((item) => item === this.SearchText)) {
         this.historyList.unshift(this.SearchText)
@@ -184,22 +196,21 @@ export default {
       }
     },
     // 监听页面滚动处理
-    handleScroll() {
+    handleScroll () {
       // 获取滚动高度
       let scrollT =
-          document.documentElement.scrollTop || document.body.scrollTop,
+        document.documentElement.scrollTop || document.body.scrollTop,
         // 窗口高度
         winH =
           document.documentElement.clientHeight || document.body.clientHeight,
         // 已经滚去的高度
         scrollH =
           document.documentElement.scrollHeight || document.body.scrollHeight
-      //是否滚动到底部的判断
-      if (scrollT + winH >= scrollH - 50) {
-        if (this.more) {
-          this.pageNo += 1
-          this.getList()
-        }
+      //是否滚动到底部并且还有更多和加载更多不显示
+      if (scrollT + winH >= scrollH - 50 && this.more && !this.showLoad) {
+        this.showLoad = true
+        this.pageNo += 1
+        this.getList()
       }
       if (scrollT > winH * 3.5) {
         this.showBack = true
@@ -210,24 +221,27 @@ export default {
       // console.log(this.bottomTop);
     },
     // 清空搜索历史
-    clearHistory() {
+    clearHistory () {
       window.localStorage.removeItem('history')
       this.historyList = []
     },
     // 获取数据
-    getData() {
+    getData () {
       getSearch({ key: this.SearchText, pageNo: this.pageNo }).then((res) => {
         if (res.result === 100) {
-          this.resultList = []
           this.more = res.data.more
           res.data.list.forEach((item) => {
             this.resultList.push(new SearchRes(item))
           })
+          //如果还有更多让加载更多继续显示
+          if (this.more) {
+            this.showLoad = false
+          }
         }
       })
     },
     // 搜索播放
-    playClick(id, name, singer) {
+    playClick (id, name, singer) {
       // name = encodeURIComponent(name);
       // singer = encodeURIComponent(
       //   singer.filter((item) => item !== ".").join("/")
@@ -255,20 +269,11 @@ export default {
     },
   },
   computed: {
-    clearShow() {
+    clearShow () {
       return this.SearchText.trim().length !== 0
     },
   },
-  created() {
-    if (window.localStorage.getItem('history')) {
-      this.historyList = JSON.parse(window.localStorage.getItem('history'))
-    }
-    getHot().then((res) => {
-      if (res.result === 100) {
-        this.hotList = res.data
-      }
-    })
-  },
+
 }
 </script>
 
